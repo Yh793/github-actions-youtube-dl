@@ -19,5 +19,11 @@ jobs:
           git remote set-url origin https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git pull --rebase
           ./bin/youtube-dl --config-location config.txt
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
+      - name: Upload firmware to cowtransfer
+        id: cowtransfer
+        if: steps.wetransfer.outputs.status == 'success'
+        run: |
+          curl -sL https://git.io/cowtransfer | sh
+          ./cowtransfer-uploader -s -p 16 --hash /opt/downloads/*.trx 2>&1 | tee cowtransfer.log
+          echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+          echo "DOWNLOADURL=$(cat cowtransfer.log | grep -o -E "https?://[a-zA-Z0-9\.\/_&=@$%?~#-]*")" >> $GITHUB_ENV
