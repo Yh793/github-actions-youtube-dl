@@ -21,7 +21,7 @@ jobs:
           ./bin/youtube-dl --config-location config.txt
       - name: Upload firmware to cowtransfer
         id: cowtransfer
-        if: steps.wetransfer.outputs.status == 'success'
+        if: always()
         run: |
           curl -sL https://git.io/cowtransfer | sh
           ./cowtransfer-uploader -s -p 16 --hash /opt/downloads/*.trx 2>&1 | tee cowtransfer.log
